@@ -1,21 +1,18 @@
 package server
 
-import "fmt"
+import (
+	"github.com/SevvyP/plants/internal/db"
+)
 
 type Server struct {
-	db *DB
+	db *db.DB
 }
 
 func ResolveServer() *Server {
-	db := ResolveDB()
-	return &Server{db: db}
-	
+	return &Server{db: ResolveDB()}
 }
 
-func ResolveDB() *DB {
-	return NewDB()
-}
 
-func (s *Server) Start() {
-	fmt.Println("hello")
+func ResolveDB() *db.DB {
+	return db.NewDB()
 }
