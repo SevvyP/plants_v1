@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/SevvyP/plants/pkg"
@@ -11,6 +13,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
+
+var ErrNotFound = "item not found"
+
+type DBInterface interface {
+	CreatePlant(pkg.Plant, context.Context) error
+	GetPlant(string, context.Context) (*pkg.Plant, error)
+	UpdatePlant(pkg.Plant, context.Context) error
+	DeletePlant(string, context.Context) (*pkg.Plant, error)
+}
 
 type DB struct {
 	client *dynamodb.Client
@@ -26,6 +37,9 @@ func NewDB() *DB {
 }
 
 func (db *DB) CreatePlant(plant pkg.Plant, context context.Context) error {
+	if plant.Name == "" || plant.Description == "" {
+		return errors.New("missing name or description")
+	}
 	item, err := attributevalue.MarshalMap(plant)
 	if err != nil {
 		return err
@@ -33,17 +47,23 @@ func (db *DB) CreatePlant(plant pkg.Plant, context context.Context) error {
 	output, err := db.client.PutItem(context, &dynamodb.PutItemInput{
 		TableName: aws.String("plants_v1"), Item: item,
 	})
+	if err != nil {
+		return err
+	}
 	err = attributevalue.UnmarshalMap(output.Attributes, &plant)
 	if err != nil {
 		return err
 	}
 	if plant.Name == "" {
-		return ErrNotFound{}
+		return errors.New("unmarshal failed")
 	}
 	return err
 }
 
 func (db *DB) GetPlant(name string, context context.Context) (*pkg.Plant, error){
+	if name == "" {
+		return nil, errors.New("missing name or description")
+	}
 	nameattribute, err := attributevalue.Marshal(name)
 	if err != nil {
 		return nil, err
@@ -53,13 +73,11 @@ func (db *DB) GetPlant(name string, context context.Context) (*pkg.Plant, error)
 	if err !=nil {
 		return nil, err
 	}
-	plant := &pkg.Plant{}
+	var plant *pkg.Plant
 	err = attributevalue.UnmarshalMap(output.Item, &plant)
-	if err != nil {
-		return nil, err
-	}
+	fmt.Println(output.Item)
 	if plant.Name == "" {
-		return nil, ErrNotFound{}
+		return nil, errors.New(ErrNotFound)
 	}
 	return plant, nil
 }
@@ -67,6 +85,9 @@ func (db *DB) GetPlant(name string, context context.Context) (*pkg.Plant, error)
 // UpdatePlant will create the item if it does not exist in the db
 // TODO: fix this
 func (db *DB) UpdatePlant(plant pkg.Plant, context context.Context) error {
+	if plant.Name == "" || plant.Description == "" {
+		return errors.New("missing name or description")
+	}
 	nameattribute, err := attributevalue.Marshal(plant.Name)
 	if err != nil {
 		return err
@@ -83,15 +104,18 @@ func (db *DB) UpdatePlant(plant pkg.Plant, context context.Context) error {
 }
 
 func (db *DB) DeletePlant(name string, context context.Context) (*pkg.Plant, error) {
+	if name == "" {
+		return nil, errors.New("missing name or description")
+	}
 	nameattribute, err := attributevalue.Marshal(name)
 	if err != nil {
 		return nil, err
 	}
 	output, err := db.client.DeleteItem(context, &dynamodb.DeleteItemInput{
-		TableName: aws.String("plants_v1"), Key: map[string]types.AttributeValue{"name": nameattribute},
+		TableName: aws.String("plants_v1"), Key: map[string]types.AttributeValue{"name": nameattribute}, ReturnValues: types.ReturnValueAllOld,
 	})
-	if output == nil {
-		return nil, ErrNotFound{}
+	if err != nil {
+		return nil, err
 	}
 	plant := &pkg.Plant{}
 	err = attributevalue.UnmarshalMap(output.Attributes, &plant)
@@ -99,14 +123,7 @@ func (db *DB) DeletePlant(name string, context context.Context) (*pkg.Plant, err
 		return nil, err
 	}
 	if plant.Name == "" {
-		return nil, ErrNotFound{}
+		return nil, errors.New(ErrNotFound)
 	}
 	return plant, nil
-}
-
-type ErrNotFound struct {
-}
-
-func (f ErrNotFound) Error() string {
-	return "item not found"
 }
