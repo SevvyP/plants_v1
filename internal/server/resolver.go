@@ -6,7 +6,7 @@ import (
 )
 
 type Server struct {
-	db *db.DB
+	db db.DBInterface
 }
 
 func ResolveServer() *Server {
@@ -14,7 +14,7 @@ func ResolveServer() *Server {
 }
 
 
-func ResolveDB() *db.DB {
+func ResolveDB() db.DBInterface {
 	return db.NewDB()
 }
 
