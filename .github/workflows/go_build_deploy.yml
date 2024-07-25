@@ -57,13 +57,9 @@ jobs:
           username: ${{ secrets.EC2_USERNAME_DEV }}
           key: ${{ secrets.SSH_PRIVATE_KEY_DEV}}
           script: |
-            docker stop plants_v1 || true
-            docker rm plants_v1 || true
+            docker stop plants_v1
+            docker rm plants_v1
             docker pull sevvyp/plants_v1:latest
-            docker run -d -name plants_v1 -p 80:80 -e AWS_ACCESS_KEY_ID='${{ secrets.DYNAMODB_ACCESS_KEY_ID_DEV }}' \
-            -e AWS_SECRET_ACCESS_KEY='${{ secrets.DYNAMODB_SECRET_ACCESS_KEY_DEV }}' \
-            -e AWS_DEFAULT_REGION='us-east-2'
-
-
+            docker run -d -name plants_v1 -p 80:80 -e AWS_ACCESS_KEY_ID='${{ secrets.DYNAMODB_ACCESS_KEY_ID_DEV }}' -e AWS_SECRET_ACCESS_KEY='${{ secrets.DYNAMODB_SECRET_ACCESS_KEY_DEV }}' -e AWS_DEFAULT_REGION='us-east-2' sevvyp/plants_v1:latest
 
         
