@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/SevvyP/plants/internal/db"
-	"github.com/SevvyP/plants/internal/middleware"
+	"github.com/SevvyP/items/internal/db"
+	"github.com/SevvyP/items/internal/middleware"
 	"github.com/gin-gonic/gin"
 	adapter "github.com/gwatts/gin-adapter"
 )
@@ -24,9 +24,9 @@ func (s *Server) Run() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(adapter.Wrap(middleware.EnsureValidToken()))
-	r.GET("/v1/plant/:name", s.HandleGetPlant)
-	r.POST("/v1/plant", s.HandleCreatePlant)
-	r.PUT("/v1/plant", s.HandleUpdatePlant)
-	r.DELETE("/v1/plant/:name", s.HandleDeletePlant)
+	r.GET("/v1/item/:name", s.HandleGetItem)
+	r.POST("/v1/item", s.HandleCreateItem)
+	r.PUT("/v1/item", s.HandleUpdateItem)
+	r.DELETE("/v1/item/:name", s.HandleDeleteItem)
 	r.Run()
 }

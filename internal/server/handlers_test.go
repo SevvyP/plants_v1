@@ -10,56 +10,56 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/SevvyP/plants/internal/db"
-	"github.com/SevvyP/plants/pkg"
+	"github.com/SevvyP/items/internal/db"
+	"github.com/SevvyP/items/pkg"
 	"github.com/gin-gonic/gin"
 )
 
-func TestServer_HandleCreatePlant(t *testing.T) {
+func TestServer_HandleCreateItem(t *testing.T) {
 	type fields struct {
 		db *db.MockDB
 	}
 	type args struct {
-		plant pkg.Plant
+		item pkg.Item
 		err error
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   pkg.Plant
+		want   pkg.Item
 		code   int
 		checkReturn bool
 	}{
 		{
-			name: "handle create plant fails if body is missing",
+			name: "handle create item fails if body is missing",
 			fields: fields{
 				db: nil,
 			},
 			code: 400,
 		},
 		{
-			name: "handle create plant fails if db returns an error",
+			name: "handle create item fails if db returns an error",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
-				plant: pkg.Plant{Name: "test", Description: "test"},
+				item: pkg.Item{Name: "test", Description: "test"},
 				err: errors.New("test"),
 			},
 			code: 500,
 		},
 		{
-			name: "handle create plant is successful if db is successful",
+			name: "handle create item is successful if db is successful",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
-				plant: pkg.Plant{Name: "test", Description: "test"},
+				item: pkg.Item{Name: "test", Description: "test"},
 				err: nil,
 			},
 			code: 200,
-			want: pkg.Plant{Name: "test", Description: "test"},
+			want: pkg.Item{Name: "test", Description: "test"},
 			checkReturn: true,
 		},
 	}
@@ -72,7 +72,7 @@ func TestServer_HandleCreatePlant(t *testing.T) {
 			}
 			c.Request.Method = "POST"
 			c.Request.Header.Set("Content-Type", "application/json")
-			jsonbytes, err := json.Marshal(tt.args.plant)
+			jsonbytes, err := json.Marshal(tt.args.item)
 			if err != nil {
 				t.Error(err)
 			} 
@@ -81,52 +81,52 @@ func TestServer_HandleCreatePlant(t *testing.T) {
 				db: tt.fields.db,
 			}
 			if(tt.fields.db != nil) {
-				tt.fields.db.On("CreatePlant", tt.args.plant, c).Return(tt.args.err)
+				tt.fields.db.On("CreateItem", tt.args.item, c).Return(tt.args.err)
 			}
-			s.HandleCreatePlant(c)
+			s.HandleCreateItem(c)
 			if c.Writer.Status() != tt.code {
-				t.Errorf("HandleCreatePlant response code: %d, expected %d", c.Writer.Status(), tt.code)
+				t.Errorf("HandleCreateItem response code: %d, expected %d", c.Writer.Status(), tt.code)
 			}
 			if tt.checkReturn {
-				var got pkg.Plant
+				var got pkg.Item
 				err = json.Unmarshal(w.Body.Bytes(), &got)
 				if err != nil {
 					t.Error(err)
 				}
 				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("Handle create plant returned %v, want %v", got, tt.want)
+					t.Errorf("Handle create item returned %v, want %v", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestServer_HandleGetPlant(t *testing.T) {
+func TestServer_HandleGetItem(t *testing.T) {
 	type fields struct {
 		db *db.MockDB
 	}
 	type args struct {
 		name string
 		err error
-		plant *pkg.Plant
+		item *pkg.Item
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   pkg.Plant
+		want   pkg.Item
 		code   int
 		checkReturn bool
 	}{
 		{
-			name: "handle get plant fails if body is missing",
+			name: "handle get item fails if body is missing",
 			fields: fields{
 				db: nil,
 			},
 			code: 400,
 		},
 		{
-			name: "handle get plant fails if db returns an error",
+			name: "handle get item fails if db returns an error",
 			fields: fields{
 				db: new(db.MockDB),
 			},
@@ -137,7 +137,7 @@ func TestServer_HandleGetPlant(t *testing.T) {
 			code: 500,
 		},
 		{
-			name: "handle get plant fails if item is not found",
+			name: "handle get item fails if item is not found",
 			fields: fields{
 				db: new(db.MockDB),
 			},
@@ -148,17 +148,17 @@ func TestServer_HandleGetPlant(t *testing.T) {
 			code: 404,
 		},
 		{
-			name: "handle get plant is successful if db is successful",
+			name: "handle get item is successful if db is successful",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
 				name: "test",
 				err: nil,
-				plant: &pkg.Plant{Name: "test", Description: "test"},
+				item: &pkg.Item{Name: "test", Description: "test"},
 			},
 			code: 200,
-			want: pkg.Plant{Name: "test", Description: "test"},
+			want: pkg.Item{Name: "test", Description: "test"},
 			checkReturn: true,
 		},
 	}
@@ -175,71 +175,71 @@ func TestServer_HandleGetPlant(t *testing.T) {
 				db: tt.fields.db,
 			}
 			if(tt.fields.db != nil) {
-				tt.fields.db.On("GetPlant", tt.args.name, c).Return(tt.args.plant, tt.args.err)
+				tt.fields.db.On("GetItem", tt.args.name, c).Return(tt.args.item, tt.args.err)
 			}
-			s.HandleGetPlant(c)
+			s.HandleGetItem(c)
 			if c.Writer.Status() != tt.code {
-				t.Errorf("HandleCreatePlant response code: %d, expected %d", c.Writer.Status(), tt.code)
+				t.Errorf("HandleCreateItem response code: %d, expected %d", c.Writer.Status(), tt.code)
 			}
 			if tt.checkReturn {
-				var got pkg.Plant
+				var got pkg.Item
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				if err != nil {
 					t.Error(err)
 				}
 				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("Handle create plant returned %v, want %v", got, tt.want)
+					t.Errorf("Handle create item returned %v, want %v", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestServer_HandleUpdatePlant(t *testing.T) {
+func TestServer_HandleUpdateItem(t *testing.T) {
 	type fields struct {
 		db *db.MockDB
 	}
 	type args struct {
-		plant pkg.Plant
+		item pkg.Item
 		err error
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   pkg.Plant
+		want   pkg.Item
 		code   int
 		checkReturn bool
 	}{
 		{
-			name: "handle update plant fails if body is missing",
+			name: "handle update item fails if body is missing",
 			fields: fields{
 				db: nil,
 			},
 			code: 400,
 		},
 		{
-			name: "handle update plant fails if db returns an error",
+			name: "handle update item fails if db returns an error",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
-				plant: pkg.Plant{Name: "test", Description: "test"},
+				item: pkg.Item{Name: "test", Description: "test"},
 				err: errors.New("test"),
 			},
 			code: 500,
 		},
 		{
-			name: "handle update plant is successful if db is successful",
+			name: "handle update item is successful if db is successful",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
-				plant: pkg.Plant{Name: "test", Description: "test"},
+				item: pkg.Item{Name: "test", Description: "test"},
 				err: nil,
 			},
 			code: 200,
-			want: pkg.Plant{Name: "test", Description: "test"},
+			want: pkg.Item{Name: "test", Description: "test"},
 			checkReturn: true,
 		},
 	}
@@ -252,7 +252,7 @@ func TestServer_HandleUpdatePlant(t *testing.T) {
 			}
 			c.Request.Method = "POST"
 			c.Request.Header.Set("Content-Type", "application/json")
-			jsonbytes, err := json.Marshal(tt.args.plant)
+			jsonbytes, err := json.Marshal(tt.args.item)
 			if err != nil {
 				t.Error(err)
 			} 
@@ -261,52 +261,52 @@ func TestServer_HandleUpdatePlant(t *testing.T) {
 				db: tt.fields.db,
 			}
 			if(tt.fields.db != nil) {
-				tt.fields.db.On("UpdatePlant", tt.args.plant, c).Return(tt.args.err)
+				tt.fields.db.On("UpdateItem", tt.args.item, c).Return(tt.args.err)
 			}
-			s.HandleUpdatePlant(c)
+			s.HandleUpdateItem(c)
 			if c.Writer.Status() != tt.code {
-				t.Errorf("HandleUpdatePlant response code: %d, expected %d", c.Writer.Status(), tt.code)
+				t.Errorf("HandleUpdateItem response code: %d, expected %d", c.Writer.Status(), tt.code)
 			}
 			if tt.checkReturn {
-				var got pkg.Plant
+				var got pkg.Item
 				err = json.Unmarshal(w.Body.Bytes(), &got)
 				if err != nil {
 					t.Error(err)
 				}
 				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("Handle update plant returned %v, want %v", got, tt.want)
+					t.Errorf("Handle update item returned %v, want %v", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestServer_HandleDeletePlant(t *testing.T) {
+func TestServer_HandleDeleteItem(t *testing.T) {
 	type fields struct {
 		db *db.MockDB
 	}
 	type args struct {
 		name string
 		err error
-		plant *pkg.Plant
+		item *pkg.Item
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   pkg.Plant
+		want   pkg.Item
 		code   int
 		checkReturn bool
 	}{
 		{
-			name: "handle delete plant fails if body is missing",
+			name: "handle delete item fails if body is missing",
 			fields: fields{
 				db: nil,
 			},
 			code: 400,
 		},
 		{
-			name: "handle delete plant fails if db returns an error",
+			name: "handle delete item fails if db returns an error",
 			fields: fields{
 				db: new(db.MockDB),
 			},
@@ -317,7 +317,7 @@ func TestServer_HandleDeletePlant(t *testing.T) {
 			code: 500,
 		},
 		{
-			name: "handle delete plant fails if item is not found",
+			name: "handle delete item fails if item is not found",
 			fields: fields{
 				db: new(db.MockDB),
 			},
@@ -328,17 +328,17 @@ func TestServer_HandleDeletePlant(t *testing.T) {
 			code: 404,
 		},
 		{
-			name: "handle delete plant is successful if db is successful",
+			name: "handle delete item is successful if db is successful",
 			fields: fields{
 				db: new(db.MockDB),
 			},
 			args: args{
 				name: "test",
 				err: nil,
-				plant: &pkg.Plant{Name: "test", Description: "test"},
+				item: &pkg.Item{Name: "test", Description: "test"},
 			},
 			code: 200,
-			want: pkg.Plant{Name: "test", Description: "test"},
+			want: pkg.Item{Name: "test", Description: "test"},
 			checkReturn: true,
 		},
 	}
@@ -355,20 +355,20 @@ func TestServer_HandleDeletePlant(t *testing.T) {
 				db: tt.fields.db,
 			}
 			if(tt.fields.db != nil) {
-				tt.fields.db.On("DeletePlant", tt.args.name, c).Return(tt.args.plant, tt.args.err)
+				tt.fields.db.On("DeleteItem", tt.args.name, c).Return(tt.args.item, tt.args.err)
 			}
-			s.HandleDeletePlant(c)
+			s.HandleDeleteItem(c)
 			if c.Writer.Status() != tt.code {
-				t.Errorf("HandleDeletePlant response code: %d, expected %d", c.Writer.Status(), tt.code)
+				t.Errorf("HandleDeleteItem response code: %d, expected %d", c.Writer.Status(), tt.code)
 			}
 			if tt.checkReturn {
-				var got pkg.Plant
+				var got pkg.Item
 				err := json.Unmarshal(w.Body.Bytes(), &got)
 				if err != nil {
 					t.Error(err)
 				}
 				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("Handle delete plant returned %v, want %v", got, tt.want)
+					t.Errorf("Handle delete item returned %v, want %v", got, tt.want)
 				}
 			}
 		})

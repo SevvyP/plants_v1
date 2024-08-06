@@ -1,4 +1,4 @@
-module github.com/SevvyP/plants
+module github.com/SevvyP/items
 
 go 1.22.5
 
@@ -13,6 +13,7 @@ require (
 	github.com/gwatts/gin-adapter v1.0.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0
+	github.com/google/uuid v1.6.0
 )
 
 require (
