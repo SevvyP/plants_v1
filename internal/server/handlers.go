@@ -5,41 +5,41 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/SevvyP/items/internal/db"
-	"github.com/SevvyP/items/pkg"
+	"github.com/SevvyP/plants/internal/db"
+	"github.com/SevvyP/plants/pkg"
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) HandleCreateItem(c *gin.Context) {
+func (s *Server) HandleCreatePlant(c *gin.Context) {
 	decoder := json.NewDecoder(c.Request.Body)
-	var item pkg.Item
-    err := decoder.Decode(&item)
+	var plant pkg.Plant
+    err := decoder.Decode(&plant)
     if err != nil {
         log.Println(err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
     }
-	if item.Name == "" || item.Description == "" {
+	if plant.Name == "" || plant.Description == "" {
 		log.Println("create request missing name or description")
 		c.Writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = s.db.CreateItem(item, c)
+	err = s.db.CreatePlant(plant, c)
 	if err != nil {
 		log.Println(err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, plant)
 }
 
-func (s *Server) HandleGetItem(c *gin.Context) {
+func (s *Server) HandleGetPlant(c *gin.Context) {
 	if c.Param("name") == "" {
 		log.Println("create request missing name or description")
 		c.Writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	item, err := s.db.GetItem(c.Param("name"), c)
+	plant, err := s.db.GetPlant(c.Param("name"), c)
 	if err != nil {
 		if err.Error() == db.ErrNotFound {
 			log.Println(err)
@@ -50,39 +50,39 @@ func (s *Server) HandleGetItem(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, plant)
 }
 
-func (s *Server) HandleUpdateItem(c *gin.Context) {
+func (s *Server) HandleUpdatePlant(c *gin.Context) {
 	decoder := json.NewDecoder(c.Request.Body)
-	var item pkg.Item
-    err := decoder.Decode(&item)
+	var plant pkg.Plant
+    err := decoder.Decode(&plant)
     if err != nil {
         log.Println(err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
     }
-	if item.Name == "" || item.Description == "" {
+	if plant.Name == "" || plant.Description == "" {
 		log.Println("create request missing name or description")
 		c.Writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = s.db.UpdateItem(item, c)
+	err = s.db.UpdatePlant(plant, c)
 	if err != nil {
 		log.Println(err)
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, plant)
 }
 
-func (s *Server) HandleDeleteItem(c *gin.Context) {
+func (s *Server) HandleDeletePlant(c *gin.Context) {
 	if c.Param("name") == "" {
 		log.Println("create request missing name or description")
 		c.Writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	item, err := s.db.DeleteItem(c.Param("name"), c)
+	plant, err := s.db.DeletePlant(c.Param("name"), c)
 	if err != nil {
 		if err.Error() == db.ErrNotFound {
 			log.Println(err)
@@ -93,5 +93,5 @@ func (s *Server) HandleDeleteItem(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, item)
+	c.JSON(http.StatusOK, plant)
 }
