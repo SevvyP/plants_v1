@@ -49,6 +49,7 @@ jobs:
         with:
           push: true
           tags: sevvyp/plants_v1:latest
+          tags: sevvyp/plants_v1:latest
 
       - name: Deploy to EC2 Instance
         uses: appleboy/ssh-action@v1.0.3
