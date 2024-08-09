@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/SevvyP/items/internal/server"
+	"github.com/SevvyP/plants/internal/server"
 	"github.com/joho/godotenv"
 )
 

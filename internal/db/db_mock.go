@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 
-	"github.com/SevvyP/items/pkg"
+	"github.com/SevvyP/plants/pkg"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -11,22 +11,22 @@ type MockDB struct {
 	mock.Mock
 }
 
-func (m *MockDB) CreateItem(item pkg.Item, context context.Context) error {
-	args := m.Called(item, context)
+func (m *MockDB) CreatePlant(plant pkg.Plant, context context.Context) error {
+	args := m.Called(plant, context)
 	return args.Error(0)
 }
 
-func (m *MockDB) GetItem(name string, context context.Context) (*pkg.Item, error) {
+func (m *MockDB) GetPlant(name string, context context.Context) (*pkg.Plant, error) {
 	args := m.Called(name, context)
-	return args.Get(0).(*pkg.Item), args.Error(1)
+	return args.Get(0).(*pkg.Plant), args.Error(1)
 }
 
-func (m *MockDB) UpdateItem(item pkg.Item, context context.Context) error {
-	args := m.Called(item, context)
+func (m *MockDB) UpdatePlant(plant pkg.Plant, context context.Context) error {
+	args := m.Called(plant, context)
 	return args.Error(0)
 }
 
-func (m *MockDB)DeleteItem(name string, context context.Context) (*pkg.Item, error) {
+func (m *MockDB)DeletePlant(name string, context context.Context) (*pkg.Plant, error) {
 	args := m.Called(name, context)
-	return args.Get(0).(*pkg.Item), args.Error(1)
+	return args.Get(0).(*pkg.Plant), args.Error(1)
 }
